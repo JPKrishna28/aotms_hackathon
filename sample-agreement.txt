@@ -1,0 +1,116 @@
+SERVICE AGREEMENT
+
+This Service Agreement ("Agreement") is made and entered into as of December 13, 2025 ("Effective Date"), by and between Aurora.ai, a company ("Service Provider"), and the Client ("Client").
+
+1. SERVICES
+
+The Service Provider agrees to provide legal document analysis services including:
+- Document text extraction
+- Clause detection and classification
+- Risk assessment
+- Legal question answering
+- Support for multiple document types
+
+2. PAYMENT TERMS
+
+Client shall pay Service Provider according to the following payment schedule:
+- Monthly subscription: $999 USD per month
+- Annual subscription: $9,990 USD per year (two months free)
+- Payment due within 30 days of invoice date
+- Late payments subject to 1.5% monthly interest charge
+
+All fees are exclusive of applicable taxes and government charges.
+
+3. TERM AND TERMINATION
+
+This Agreement shall commence on the Effective Date and shall continue for an initial term of twelve (12) months ("Initial Term"), unless terminated earlier by either party.
+
+Either party may terminate this Agreement with thirty (30) days' written notice. Upon termination, all documents uploaded during the service period will be permanently deleted within 24 hours.
+
+4. CONFIDENTIALITY OBLIGATIONS
+
+Both parties agree to:
+- Maintain strict confidentiality of all proprietary information
+- Not disclose information to third parties without consent
+- Implement reasonable security measures
+- Maintain confidentiality for two (2) years following termination
+
+5. LIMITATION OF LIABILITY
+
+In no event shall either party be liable for:
+- Indirect, incidental, or consequential damages
+- Lost profits or business opportunities
+- Data loss or corruption
+- Loss of use or access to services
+
+The total liability of either party shall not exceed the amount paid in the prior twelve (12) months.
+
+6. INTELLECTUAL PROPERTY RIGHTS
+
+The Service Provider retains all rights to:
+- The software and platform
+- Algorithms and analytical methods
+- Generated insights and reports
+
+Client retains ownership of all uploaded documents. Client grants Service Provider a license to analyze documents solely for service delivery purposes.
+
+7. DATA SECURITY AND PRIVACY
+
+Service Provider will:
+- Implement industry-standard security measures
+- Use encryption for data in transit and at rest
+- Conduct regular security audits
+- Not retain documents after 24 hours of processing
+
+8. WARRANTY DISCLAIMER
+
+The Service Provider provides services "AS IS" without warranties of any kind. Service Provider does not warrant that:
+- The analysis will be error-free
+- The service will be uninterrupted
+- Analysis will satisfy all legal requirements
+
+9. GOVERNING LAW AND JURISDICTION
+
+This Agreement shall be governed by and construed in accordance with the laws of the United States, without regard to conflict of law principles. Any legal action shall be brought exclusively in the courts located within the jurisdiction.
+
+10. ENTIRE AGREEMENT
+
+This Agreement constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, and agreements, whether written or oral.
+
+11. AMENDMENTS
+
+This Agreement may only be amended in writing and signed by both parties. No oral agreements shall be valid.
+
+12. SEVERABILITY
+
+If any provision is found invalid, the remaining provisions shall continue in full force and effect.
+
+13. NOTICES
+
+All notices shall be in writing and delivered via email or certified mail to the addresses specified by each party.
+
+14. COUNTERPARTS
+
+This Agreement may be executed in one or more counterparts, each constituting an original and all together constituting one agreement.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.
+
+SERVICE PROVIDER:
+
+Aurora.ai
+
+By: _______________________________
+Name: _____________________________
+Title: ______________________________
+Date: ______________________________
+
+
+CLIENT:
+
+_____________________________________
+Company Name
+
+By: _______________________________
+Name: _____________________________
+Title: ______________________________
+Date: ______________________________
