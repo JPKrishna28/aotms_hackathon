@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store';
 import { api } from '../api';
-import { FiBarChart2, FiAlertCircle, FiCheckCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiBarChart2, FiAlertCircle, FiCheckCircle, FiTrendingUp, FiVolume2, FiVolumeX } from 'react-icons/fi';
+import { textToSpeech } from '../utils/textToSpeech';
 
 export function AnalysisResults() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
   const [error, setError] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakingTab, setSpeakingTab] = useState(null);
 
   const sessionId = useStore((state) => state.sessionId);
   const analysisResults = useStore((state) => state.analysisResults);
@@ -48,7 +51,23 @@ export function AnalysisResults() {
     if (sessionId) {
       fetchResults();
     }
+
+    return () => {
+      textToSpeech.stop();
+    };
   }, [sessionId, setAnalysisResults, setClauses, setRiskScore]);
+
+  const handleSpeak = (text, tab) => {
+    if (isSpeaking && speakingTab === tab) {
+      textToSpeech.stop();
+      setIsSpeaking(false);
+      setSpeakingTab(null);
+    } else {
+      textToSpeech.speak(text);
+      setIsSpeaking(true);
+      setSpeakingTab(tab);
+    }
+  };
 
   const getRiskColor = (score) => {
     if (score === 'high') return 'text-red-600';
@@ -117,7 +136,24 @@ export function AnalysisResults() {
           {activeTab === 'summary' && (
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Plain-Language Summary</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Plain-Language Summary</h3>
+                  <button
+                    onClick={() => handleSpeak(analysis.summary || 'No summary available', 'summary')}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isSpeaking && speakingTab === 'summary'
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                    }`}
+                    title="Listen to summary"
+                  >
+                    {isSpeaking && speakingTab === 'summary' ? (
+                      <FiVolumeX className="w-5 h-5" />
+                    ) : (
+                      <FiVolume2 className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
                 <p className="text-gray-700 leading-relaxed mb-6">
                   {analysis.summary || 'No summary available'}
                 </p>
@@ -161,7 +197,27 @@ export function AnalysisResults() {
           {/* Clauses Tab */}
           {activeTab === 'clauses' && (
             <div className="space-y-4">
-              <p className="text-gray-600 mb-4">Found {clauses.length} key clauses</p>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-gray-600">Found {clauses.length} key clauses</p>
+                <button
+                  onClick={() => {
+                    const allClausesText = clauses.map(c => `${c.type.toUpperCase()}: ${c.text}. ${c.explanation}`).join('. ');
+                    handleSpeak(allClausesText || 'No clauses available', 'clauses');
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isSpeaking && speakingTab === 'clauses'
+                      ? 'bg-red-100 text-red-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                  }`}
+                  title="Listen to all clauses"
+                >
+                  {isSpeaking && speakingTab === 'clauses' ? (
+                    <FiVolumeX className="w-5 h-5" />
+                  ) : (
+                    <FiVolume2 className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
               {clauses.map((clause, idx) => (
                 <div
                   key={idx}
@@ -176,14 +232,31 @@ export function AnalysisResults() {
                   }`}
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <span className="inline-block px-3 py-1 bg-gray-200 text-gray-800 text-xs font-medium rounded">
-                      {(clause.type || 'unknown').toUpperCase()}
-                    </span>
-                    {clause.riskLevel && (
-                      <span className="text-xs font-medium text-gray-600">
-                        Risk: <span className={getRiskColor(clause.riskLevel)}>{clause.riskLevel}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block px-3 py-1 bg-gray-200 text-gray-800 text-xs font-medium rounded">
+                        {(clause.type || 'unknown').toUpperCase()}
                       </span>
-                    )}
+                      {clause.riskLevel && (
+                        <span className="text-xs font-medium text-gray-600">
+                          Risk: <span className={getRiskColor(clause.riskLevel)}>{clause.riskLevel}</span>
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleSpeak(`${clause.type.toUpperCase()}: ${clause.text}. ${clause.explanation}`, `clause-${idx}`)}
+                      className={`p-1.5 rounded transition-colors flex-shrink-0 ${
+                        isSpeaking && speakingTab === `clause-${idx}`
+                          ? 'bg-red-100 text-red-600'
+                          : 'bg-gray-100 text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                      }`}
+                      title="Listen to this clause"
+                    >
+                      {isSpeaking && speakingTab === `clause-${idx}` ? (
+                        <FiVolumeX className="w-4 h-4" />
+                      ) : (
+                        <FiVolume2 className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                   <p className="text-sm font-medium text-gray-900 mb-2">"{clause.text}"</p>
                   <p className="text-sm text-gray-700">{clause.explanation}</p>
@@ -196,22 +269,39 @@ export function AnalysisResults() {
           {activeTab === 'risk' && (
             <div className="space-y-6">
               <div className={`p-8 rounded-lg border-2 ${getRiskBgColor(riskAssessment.score)}`}>
-                <div className="flex items-center gap-4 mb-4">
-                  {riskAssessment.score === 'high' && (
-                    <FiAlertCircle className="w-12 h-12 text-red-600" />
-                  )}
-                  {riskAssessment.score === 'medium' && (
-                    <FiTrendingUp className="w-12 h-12 text-yellow-600" />
-                  )}
-                  {riskAssessment.score === 'low' && (
-                    <FiCheckCircle className="w-12 h-12 text-green-600" />
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Overall Risk Score</p>
-                    <p className={`text-4xl font-bold ${getRiskColor(riskAssessment.score)}`}>
-                      {riskAssessment.score?.toUpperCase()}
-                    </p>
+                <div className="flex items-start gap-4 mb-4 justify-between">
+                  <div className="flex items-center gap-4">
+                    {riskAssessment.score === 'high' && (
+                      <FiAlertCircle className="w-12 h-12 text-red-600" />
+                    )}
+                    {riskAssessment.score === 'medium' && (
+                      <FiTrendingUp className="w-12 h-12 text-yellow-600" />
+                    )}
+                    {riskAssessment.score === 'low' && (
+                      <FiCheckCircle className="w-12 h-12 text-green-600" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Overall Risk Score</p>
+                      <p className={`text-4xl font-bold ${getRiskColor(riskAssessment.score)}`}>
+                        {riskAssessment.score?.toUpperCase()}
+                      </p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => handleSpeak(`Risk Score: ${riskAssessment.score}. ${riskAssessment.reasoning}`, 'risk')}
+                    className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
+                      isSpeaking && speakingTab === 'risk'
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                    }`}
+                    title="Listen to risk assessment"
+                  >
+                    {isSpeaking && speakingTab === 'risk' ? (
+                      <FiVolumeX className="w-5 h-5" />
+                    ) : (
+                      <FiVolume2 className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
                 <p className="text-gray-700">{riskAssessment.reasoning}</p>
               </div>
@@ -243,17 +333,56 @@ export function AnalysisResults() {
                 </div>
               )}
 
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900">Recommended Actions</h3>
+                <button
+                  onClick={() => {
+                    const allStepsText = (nextSteps.steps || []).map((s, i) => `Step ${i + 1}: ${s.step}. ${s.rationale}`).join('. ');
+                    handleSpeak(allStepsText || 'No steps available', 'nextSteps');
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isSpeaking && speakingTab === 'nextSteps'
+                      ? 'bg-red-100 text-red-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600'
+                  }`}
+                  title="Listen to all next steps"
+                >
+                  {isSpeaking && speakingTab === 'nextSteps' ? (
+                    <FiVolumeX className="w-5 h-5" />
+                  ) : (
+                    <FiVolume2 className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+
               <div className="space-y-4">
                 {(nextSteps.steps || []).map((item, idx) => (
                   <div key={idx} className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-600">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-semibold text-sm">{idx + 1}</span>
+                    <div className="flex items-start gap-4 justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-blue-600 font-semibold text-sm">{idx + 1}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 mb-2">{item.step}</p>
+                          <p className="text-gray-700 text-sm">{item.rationale}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900 mb-2">{item.step}</p>
-                        <p className="text-gray-700 text-sm">{item.rationale}</p>
-                      </div>
+                      <button
+                        onClick={() => handleSpeak(`${item.step}. ${item.rationale}`, `step-${idx}`)}
+                        className={`p-1.5 rounded transition-colors flex-shrink-0 ${
+                          isSpeaking && speakingTab === `step-${idx}`
+                            ? 'bg-red-100 text-red-600'
+                            : 'bg-gray-100 text-gray-500 hover:text-blue-600 hover:bg-blue-50'
+                        }`}
+                        title="Listen to this step"
+                      >
+                        {isSpeaking && speakingTab === `step-${idx}` ? (
+                          <FiVolumeX className="w-4 h-4" />
+                        ) : (
+                          <FiVolume2 className="w-4 h-4" />
+                        )}
+                      </button>
                     </div>
                   </div>
                 ))}

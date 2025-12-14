@@ -1,19 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store';
 import { api } from '../api';
-import { FiMessageSquare, FiSend, FiGlobe } from 'react-icons/fi';
+import { FiMessageSquare, FiSend, FiGlobe, FiVolume2, FiVolumeX } from 'react-icons/fi';
+import { textToSpeech } from '../utils/textToSpeech';
 
 export function DocumentQA() {
   const [question, setQuestion] = useState('');
   const [language, setLanguage] = useState('English');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakingId, setSpeakingId] = useState(null);
 
   const sessionId = useStore((state) => state.sessionId);
   const chatMessages = useStore((state) => state.chatMessages);
   const addChatMessage = useStore((state) => state.addChatMessage);
 
   const languages = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese'];
+
+  useEffect(() => {
+    return () => {
+      textToSpeech.stop();
+    };
+  }, []);
+
+  const handleSpeak = (text, id) => {
+    if (isSpeaking && speakingId === id) {
+      textToSpeech.stop();
+      setIsSpeaking(false);
+      setSpeakingId(null);
+    } else {
+      textToSpeech.speak(text);
+      setIsSpeaking(true);
+      setSpeakingId(id);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,10 +119,35 @@ export function DocumentQA() {
                     : 'bg-gray-200 text-gray-900'
                 }`}
               >
-                <p className="text-sm">{msg.content}</p>
-                <p className="text-xs mt-1 opacity-70">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm">{msg.content}</p>
+                    <p className="text-xs mt-1 opacity-70">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  {msg.role === 'assistant' && (
+                    <button
+                      onClick={() => handleSpeak(msg.content, idx)}
+                      className={`ml-2 p-1 rounded transition-colors flex-shrink-0 ${
+                        isSpeaking && speakingId === idx
+                          ? msg.role === 'user'
+                            ? 'bg-blue-700'
+                            : 'bg-gray-300'
+                          : msg.role === 'user'
+                          ? 'bg-blue-700 hover:bg-blue-800'
+                          : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      title="Listen to answer"
+                    >
+                      {isSpeaking && speakingId === idx ? (
+                        <FiVolumeX className="w-4 h-4" />
+                      ) : (
+                        <FiVolume2 className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))
