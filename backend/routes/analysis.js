@@ -82,32 +82,30 @@ router.post('/question', analysisLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Document not found or not extracted' });
     }
 
-    // Return immediate response
-    res.json({
-      sessionId,
-      status: 'processing_question'
-    });
+    // Process synchronously and return answer immediately
+    try {
+      const answer = await getGeminiService().answerQuestion(
+        session.extractedText,
+        question
+      );
 
-    // Process asynchronously
-    setTimeout(async () => {
-      try {
-        const answer = await getGeminiService().answerQuestion(
-          session.extractedText,
-          question
-        );
+      res.json({
+        sessionId,
+        question,
+        answer,
+        language,
+        timestamp: new Date().toISOString()
+      });
 
-        sendProcessingUpdate(req.wss, 'question_answered', 100, {
-          sessionId,
-          answer
-        });
-      } catch (error) {
-        console.error('Question answering error:', error);
-        sendProcessingUpdate(req.wss, 'error', 0, {
-          sessionId,
-          error: error.message
-        });
-      }
-    }, 100);
+      // Send WebSocket update
+      sendProcessingUpdate(req.wss, 'question_answered', 100, {
+        sessionId,
+        answer
+      });
+    } catch (error) {
+      console.error('Question answering error:', error);
+      res.status(500).json({ error: error.message });
+    }
 
   } catch (error) {
     res.status(500).json({ error: error.message });

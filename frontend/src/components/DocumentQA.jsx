@@ -44,7 +44,7 @@ export function DocumentQA() {
       setError(err.response?.data?.error || 'Failed to get answer');
       addChatMessage({
         role: 'assistant',
-        content: `Error: ${error}`,
+        content: `Error: ${err.response?.data?.error || 'Failed to get answer'}`,
         timestamp: new Date().toISOString()
       });
     } finally {
