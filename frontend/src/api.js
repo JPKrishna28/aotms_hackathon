@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_BASE = 'https://aotms-hackathon.onrender.com/api';
 
+
 export const api = {
   // Document endpoints
   uploadDocument: async (file) => {
