@@ -78,21 +78,21 @@ ${documentText.substring(0, 5000)}`;
       const result = JSON.parse(text);
       // Ensure it's an array
       if (Array.isArray(result)) {
-        return result.filter(c => c.text && c.type);
+        return result.filter(c => c && c.text && c.type);
       }
       return [];
     } catch (e) {
-      console.error('Clause detection parse error:', e.message, 'Response:', text.substring(0, 100));
-      // Try to extract JSON if wrapped in markdown code blocks
+      // First try to extract JSON if wrapped in markdown code blocks
       const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       if (jsonMatch) {
         try {
-          const result = JSON.parse(jsonMatch[1]);
+          const extracted = jsonMatch[1].trim();
+          const result = JSON.parse(extracted);
           if (Array.isArray(result)) {
-            return result.filter(c => c.text && c.type);
+            return result.filter(c => c && c.text && c.type);
           }
         } catch (e2) {
-          console.error('Clause detection markdown extraction failed:', e2);
+          console.error('Clause detection markdown extraction failed:', e2.message);
         }
       }
       
