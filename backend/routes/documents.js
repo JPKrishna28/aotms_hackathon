@@ -18,7 +18,7 @@ function extractMetadata(text) {
   const metadata = {
     name: null,
     email: 'perlajaswanthkrishna@gmail.com', // Default email
-    date: '15-12-2025' // Default date
+    date: '16-12-2025' // Default date
   };
 
   // Extract email (look for email pattern)
